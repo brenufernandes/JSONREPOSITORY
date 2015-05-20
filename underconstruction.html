@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>First version prototype </title>
+	<style>
+		ul#menu {
+			padding:0;
+		}
+		ul#menu li {
+			display: inline;
+}
+
+		ul#menu li a {
+			background-color: black;
+			color: white;
+			padding: 10px 20px;
+			text-decoration: none;
+			border-radius: 4px 4px 0 0;
+}
+
+		ul#menu li a:hover {
+			background-color: white;
+}	
+	html, body, #map-canvas { 
+			height: 100%; 
+			margin: 0; 
+			padding: 0;}	
+	</style>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+    <script>
+
+var rendererOptions = {
+  draggable: true
+};
+var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);;
+var directionsService = new google.maps.DirectionsService();
+var map;
+
+var las_vegas = new google.maps.LatLng(36.1215, 115.1739);
+
+function initialize() {
+
+  var mapOptions = {
+    zoom: 7,
+    center: las_vegas
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  directionsDisplay.setMap(map);
+  directionsDisplay.setPanel(document.getElementById('directionsPanel'));
+
+  google.maps.event.addListener(directionsDisplay, 'directions_changed', function() {
+    computeTotalDistance(directionsDisplay.getDirections());
+  });
+
+  calcRoute();
+}
+
+function calcRoute() {
+
+ var start = document.getElementById("start").value;
+  var end = document.getElementById("end").value;
+  var request = {
+    origin: start,
+    destination: end,
+	provideRouteAlternatives: true,
+    travelMode: google.maps.TravelMode.DRIVING
+	
+  };
+  directionsService.route(request, function(response, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      directionsDisplay.setDirections(response);
+    }
+  });
+}
+
+function computeTotalDistance(result) {
+  var total = 0;
+  var myroute = result.routes[0];
+  for (var i = 0; i < myroute.legs.length; i++) {
+    total += myroute.legs[i].distance.value;
+  }
+  total = total / 1000.0;
+  document.getElementById('total').innerHTML = total + ' km';
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+
+</script>
+	</head>
+	<body>
+	<div id="div1">
+		<a href="http://www.unlv.edu/"><img src="http://www.unlv.edu/assets/identity/images/logos/UNLV-186.png" alt="UNLV" width=
+		"500" height="100"></a>	
+	</div>
+	<div>
+		<ul id ="menu">
+			<li><a href ="#">Home</a></li>
+			<li><a href ="#">About Software</a></li>
+			<li><a href ="#">Open code</a></li>
+			<li><a href ="#">Contact</a></li>
+		</ul>
+	</div>
+	   <div id="panel">
+    <b>Start: </b>
+    <select id="start">
+      <option value="caesars Palace, las Vegas , nv">Caesars Palace</option>
+      <option value="bellagio, las Vegas, nv">Bellagio</option>
+    
+    </select>
+    <b>End: </b>
+    <select id="end" onchange="calcRoute();">
+      <option value="hollywood regional park, Las Vegas, NV 89142">Hollywood Park</option>
+      <option value="Mystic falls park, Las Vegas 89122">Mystic falls park</option>
+     
+    </select>
+    </div>
+ 
+    <div id="warnings_panel" style="width:100%;height:10%;text-align:center"></div>
+	<div id="map-canvas" style="float:left;width:70%; height:100%"></div>
+    <div id="directionsPanel" style="float:right;width:30%;height 100%">
+    <p>Total Distance: <span id="total"></span></p>
+	
+	</body>
+	
+</html>
